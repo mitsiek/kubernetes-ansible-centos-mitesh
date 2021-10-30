@@ -47,20 +47,17 @@ Vagrant.configure("2") do |config|
     ansible.vm.network "private_network", ip: "192.168.120.10"
 
     ansible.vm.provision "shell" do |s|
-      ssh_pub_key = File.readlines("#{sshKey}").first.strip
       s.inline = <<-SHELL
-        echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
-        mkdir /root/.ssh && chmod 700 /root/.ssh
-        touch /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys
-        echo #{ssh_pub_key} >> /root/.ssh/authorized_keys    
         yum update -y
         yum install epel-release -y
         yum install ansible -y
       SHELL
     end
 
+    ansible.vm.provision "file", source: "ansible", destination: "$HOME/ansible"
+
     ansible.vm.provider "virtualbox" do |v|
-        v.name = "ansible-controller"
+        v.name = "ansible"
         v.memory = "1024"
         v.cpus = "2"
     end
